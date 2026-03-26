@@ -40,3 +40,29 @@ ss = math.ceil(ss_raw)
 rop = math.ceil(rop_raw)
 print(f"Stats -> Mean: {d_mean:.2f}, Std: {d_std:.2f}")
 print(f"Results -> ROP: {rop}, SS: {ss}")
+
+# --- simulation loop ---
+inv_levels = []
+curr_inv = rop + 50
+is_ordered = False
+days_left = 0
+order_qty = 150
+
+for d in df['demand']:
+    if is_ordered and days_left == 0:
+        curr_inv += order_qty
+        is_ordered = False
+
+    curr_inv -= d
+    inv_levels.append(curr_inv)
+
+    # print(f"day check: inv={curr_inv}, demand={d}")
+
+    if curr_inv <= rop and not is_ordered:
+        is_ordered = True
+        days_left = lead_time
+
+    if is_ordered:
+        days_left -= 1
+
+df['inventory'] = inv_levels
