@@ -27,3 +27,16 @@ print("Simulasyon motoru calisiyor...")
 # generating poisson demand
 demand_data = np.random.poisson(lam=avg_demand, size=n_days)
 df = pd.DataFrame({'day': range(1, n_days + 1), 'demand': demand_data})
+
+z = norm.ppf(sl)
+d_mean = df['demand'].mean()
+d_std = df['demand'].std()
+
+# calculate ss and rop
+ss_raw = z * d_std * math.sqrt(lead_time)
+rop_raw = (d_mean * lead_time)+ss_raw
+
+ss = math.ceil(ss_raw)
+rop = math.ceil(rop_raw)
+print(f"Stats -> Mean: {d_mean:.2f}, Std: {d_std:.2f}")
+print(f"Results -> ROP: {rop}, SS: {ss}")
