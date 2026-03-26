@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from scipy.stats import norm
 
 print("\n=== STOCHASTIC DIGITAL TWIN ===")
@@ -9,20 +9,33 @@ print("\n=== STOCHASTIC DIGITAL TWIN ===")
 try:
     n_days = int(
         input("Simulasyon kac gun sursun? (Varsayilan: 365): ") or 365)
+except ValueError:
+    print("\n[!] Hatali bir harf girdiniz. Varsayilan degerlerle devam ediliyor...")
+    n_days = 365
+try:
     avg_demand = int(
         input("Gunluk ortalama talep beklentisi nedir? (Varsayilan: 15): ") or 15)
+except ValueError:
+    print("\n[!] Hatali bir harf girdiniz. Varsayilan degerlerle devam ediliyor...")
+    avg_demand = 15
+try:
     lead_time = int(
         input("Kargo/Tedarik suresi kac gundur? (Varsayilan: 5): ") or 5)
+except ValueError:
+    print("\n[!] Hatali bir harf girdiniz. Varsayilan degerlerle devam ediliyor...")
+    lead_time = 5
+try:
     sl_input = float(
         input("Hedeflenen Servis Seviyesi % kactir? (Orn: 95): ") or 95)
     sl = sl_input / 100.0
 except ValueError:
     print("\n[!] Hatali bir harf girdiniz. Varsayilan degerlerle devam ediliyor...")
-    n_days = 365
-    avg_demand = 15
-    lead_time = 5
-    sl = 0.95
+    sl = 0.9
+
 print("Simulasyon motoru calisiyor...")
+
+
+# print(lead_time, sl_input, avg_demand, n_days)
 
 # generating poisson demand
 demand_data = np.random.poisson(lam=avg_demand, size=n_days)
@@ -66,3 +79,22 @@ for d in df['demand']:
         days_left -= 1
 
 df['inventory'] = inv_levels
+
+# --- plotting ---
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7))
+
+ax1.plot(df['day'][:100], df['inventory'][:100],
+         color='blue', label='Inventory')
+ax1.axhline(y=rop, color='red', linestyle='-', label=f'ROP ({rop})')
+ax1.axhline(y=ss, color='orange', linestyle='--', label=f'SS ({ss})')
+ax1.set_title('Inventory Simulation')
+ax1.legend()
+
+ax2.plot(df['day'][:100], df['demand'][:100], color='purple',
+         marker='.', alpha=0.6, label='Demand')
+ax2.axhline(y=d_mean, color='green', linestyle=':', label='Avg Demand')
+ax2.set_title('Daily Demand')
+ax2.legend()
+
+plt.tight_layout()
+plt.show()
